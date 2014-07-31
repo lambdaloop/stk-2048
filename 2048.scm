@@ -143,6 +143,10 @@
       (comb (car L) (accumulate comb null (cdr L)))))
 
 
+(define (repeat f n)
+  (if (= n 1) f
+      (lambda (x) (f ((repeat f (- n 1)) x)))))
+
 ;; -- Tile model
 
 (define tiles '())
@@ -323,24 +327,24 @@
   (bind-keypress
    (lambda (k x y)
      (when (member k '(escape enter space))
-           (reset-tiles!)
-           (add-random-tile! tiles)
-           (draw-tiles tiles))
+       (reset-tiles!)
+       (add-random-tile! tiles)
+       (draw-tiles tiles))
      
      (when (member k '(up down right left))
-           ( (cond ((eq? k 'up) move-tiles-up!)
-                   ((eq? k 'down) move-tiles-down!)
-                   ((eq? k 'right) move-tiles-right!)
-                   ((eq? k 'left) move-tiles-left!)
-                   (else id))
-             tiles)
+       ( (cond ((eq? k 'up) (repeat move-tiles-up! 4))
+               ((eq? k 'down) (repeat  move-tiles-down! 4))
+               ((eq? k 'right) (repeat  move-tiles-right! 4))
+               ((eq? k 'left) (repeat  move-tiles-left! 4))
+               (else id))
+         tiles)
 
-           (add-random-tile! tiles)
-           (draw-tiles tiles)
-           (cond ((tiles-contain? tiles 2048) (game-over "You win!!"))
-                 ((stuck? tiles) (game-over "You lose!")))
-           
-           ))))
+       (add-random-tile! tiles)
+       (draw-tiles tiles)
+       (cond ((tiles-contain? tiles 2048) (game-over "You win!!"))
+             ((stuck? tiles) (game-over "You lose!")))
+       
+       ))))
 
 ;; -- Game
 
